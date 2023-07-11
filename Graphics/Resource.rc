@@ -1,0 +1,7 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "Resource.h"
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+IDI_ICON1               ICON                    "icon.ico"
