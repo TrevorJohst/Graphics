@@ -25,15 +25,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	//Register the class
 	RegisterClass(&wc);
 
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
 	//Create the window
 	HWND window = CreateWindowEx(
-		0,						//Optional window style
-		CLASS_NAME,				//Window class
-		L"Graphics",			//Window text
-		WS_OVERLAPPEDWINDOW,	//Window style
+		0,										//Optional window style
+		CLASS_NAME,								//Window class
+		L"Graphics",							//Window text
+		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,	//Window style
 
 		//Size and Position
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		0, 0, screenWidth, screenHeight,
 
 		NULL,					//Parent window
 		NULL,					//Menu
@@ -48,7 +51,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	}
 
 	//Display the window to the screen
-	ShowWindow(window, nCmdShow);
+	ShowWindow(window, SW_SHOWMAXIMIZED);
 
 	//Create graphics object to pass into display
 	Graphics graphics(window);
@@ -88,6 +91,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	//Switch on message type
 	switch (uMsg)
 	{
+	case WM_WINDOWPOSCHANGING:
+	{
+		// Prevent manual movement and resizing of the window
+		WINDOWPOS* pWinPos = reinterpret_cast<WINDOWPOS*>(lParam);
+		pWinPos->flags |= SWP_NOMOVE | SWP_NOSIZE;
+		ShowWindow(hwnd, SW_MAXIMIZE);
+		break;
+	}
 		//Destroy the window
 	case WM_DESTROY:
 		PostQuitMessage(0);

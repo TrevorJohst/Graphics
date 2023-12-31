@@ -12,6 +12,8 @@ Graphics::Graphics(HWND& hWindow)
 	GetClientRect(hWindow, &rect);
 	clientWidth = rect.right - rect.left;
 	clientHeight = rect.bottom - rect.top;
+	//clientWidth = 2000;
+	//clientHeight = 2000;
 
 	//Allocate our memory for storing pixel values
 	memory = VirtualAlloc(
@@ -38,43 +40,40 @@ Graphics::Graphics(HWND& hWindow)
 //Draws a line between two points
 void Graphics::DrawLine(Vector<int> pos1, Vector<int> pos2, u32 color)
 {
-	//Calculate our line's difference in x and y
-	int dx = pos2.x - pos1.x;
-	int dy = pos2.y - pos1.y;
-	int diff = 2 * dy - dx;
+	int x1 = pos1.x;
+	int y1 = pos1.y;
+	int x2 = pos2.x;
+	int y2 = pos2.y;
 
-	//Set upper and lower bounds for our loop and starting y value
-	int xLower;
-	int xUpper;
-	int y;
+	int dx = abs(x2 - x1);
+	int sx = x1 < x2 ? 1 : -1;
+	int dy = -abs(y2 - y1);
+	int sy = y1 < y2 ? 1 : -1;
+	int error = dx + dy;
 
-	if (pos1.x < pos2.x)
+	while (true)
 	{
-		xLower = pos1.x;
-		y = pos1.y;
-		xUpper = pos2.x;
-	}
-	else
-	{
-		xLower = pos2.x;
-		y = pos2.y;
-		xUpper = pos1.x;
-	}
+		ChangePixel({ x1, y1 }, color);
 
-	//TODO:
-	//Determine pixel coloration using Bresenham's algorithm
-	for (int x = xLower; x <= xUpper; x++)
-	{
-		ChangePixel({ x, y }, color);
+		if (x1 == x2 && y1 == y2) break;
 
-		if (diff > 0)
+		int e2 = 2 * error;
+
+		if (e2 >= dy)
 		{
-			y++;
-			diff = diff - 2 * dx;
+			if (x1 == x2) break;
+
+			error += dy;
+			x1 += sx;
 		}
-		diff = diff + 2 * dy;
+		if (e2 <= dx)
+		{
+			if (y1 == y2) break;
+
+			error = error + dx;
+			y1 += sy;
+		}
 	}
-	//
 
 }
 
