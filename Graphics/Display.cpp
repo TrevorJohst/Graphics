@@ -19,5 +19,5 @@ void Display::DisplayFrame()
 //Any changes to the frame happen within here
 void Display::ProcessFrame()
 {
-	graphics.DrawLine({ 100, 200 }, { 200, 100 }, 0xffffff);
+	graphics.DrawTriangle({ 200, 200 }, { 200, 400 }, { 400, 200 }, 0xffffff);
 }

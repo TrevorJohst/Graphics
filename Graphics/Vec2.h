@@ -1,12 +1,12 @@
 #pragma once
 
 template <typename T>
-struct Vector
+struct Vec2
 {
 public:
 	////////////////////////////////////////////////////////////
 	//Swaps the values of two vectors
-	void Swap(Vector<T>& rhs)
+	void Swap(Vec2<T>& rhs)
 	{
 		//Store temporary values
 		T xTemp = x;

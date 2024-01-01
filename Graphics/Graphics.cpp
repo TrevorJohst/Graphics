@@ -37,41 +37,146 @@ Graphics::Graphics(HWND& hWindow)
 }
 
 ////////////////////////////////////////////////////////////
-//Draws a line between two points
-void Graphics::DrawLine(Vector<int> pos1, Vector<int> pos2, u32 color)
+//Draws a triangle
+void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
 {
-	int x1 = pos1.x;
-	int y1 = pos1.y;
-	int x2 = pos2.x;
-	int y2 = pos2.y;
+	//Initialize variables
+	Vec2<int> top = v1, middle = v2, bottom = v3;
+	int dx;
+	int dy;
 
+	//Order all of the verticies in descending order
+	if (top.y > middle.y)
+	{
+		if (top.y > bottom.y)
+		{
+			if (middle.y < bottom.y)
+				middle.Swap(bottom);
+		}
+		else
+		{
+			top.Swap(bottom);
+			bottom.Swap(middle);
+		}
+	}
+	else if (middle.y > bottom.y)
+	{
+		middle.Swap(top);
+
+		if (middle.y < bottom.y)
+			middle.Swap(bottom);
+	}
+	else
+	{
+		top.Swap(bottom);
+	}
+
+	//Handle coincident points edge case
+	dx = top.x - bottom.x;
+	dy = top.y - bottom.y;
+
+	if (dy == 0)
+	{
+		int left = min(min(top.x, middle.x), bottom.x);
+		int right = max(max(top.x, middle.x), bottom.x);
+
+		DrawLine({ left, middle.y }, { right, middle.y }, color);
+		return;
+	}
+
+	//Find new middle vertex
+	int newX = static_cast<float>(dx) / static_cast<float>(dy) * (middle.y - top.y) + top.x;
+
+	//Order middle vertices
+	Vec2<int> middleLeft = { newX, middle.y }, middleRight = middle;
+	if (middleLeft.x > middleRight.x) middleLeft.Swap(middleRight);
+
+	//Draw flat bottom triangle
+	dy = top.y - middleLeft.y;
+	float ileftSlope = dy != 0 ? static_cast<float>(top.x - middleLeft.x) / static_cast<float>(dy) : 0;
+	float leftX = static_cast<float>(top.x);
+	dy = top.y - middleRight.y;
+	float irightSlope = dy != 0 ? static_cast<float>(top.x - middleRight.x) / static_cast<float>(dy) : 0;
+	float rightX = static_cast<float>(top.x);
+	for (int y = top.y; y >= middle.y; y--)
+	{
+		for (int x = static_cast<int>(leftX); x < rightX; x++)
+		{
+			//Draw current pixel
+			ChangePixel({ x, y }, color);
+		}
+
+		//Walk down the sides
+		leftX -= ileftSlope;
+		rightX -= irightSlope;
+	}
+
+	//Draw flat top triangle
+	dy = middleLeft.y - bottom.y;
+	ileftSlope = dy != 0 ? static_cast<float>(middleLeft.x - bottom.x) / static_cast<float>(dy) : 0;
+	leftX = static_cast<float>(middleLeft.x);
+	dy = middleRight.y - bottom.y;
+	irightSlope = dy != 0 ? static_cast<float>(middleRight.x - bottom.x) / static_cast<float>(dy) : 0;
+	rightX = static_cast<float>(middleRight.x);
+	for (int y = middle.y; y >= bottom.y; y--)
+	{
+		for (int x = static_cast<int>(leftX); x < rightX; x++)
+		{
+			//Draw current pixel
+			ChangePixel({ x, y }, color);
+		}
+
+		//Walk down the sides
+		leftX -= ileftSlope;
+		rightX -= irightSlope;
+	}
+}
+
+////////////////////////////////////////////////////////////
+//Draws a line between two points
+void Graphics::DrawLine(Vec2<int> pos1, Vec2<int> pos2, u32 color)
+{
+	//Unpack coordinates
+	int x1 = pos1.x, y1 = pos1.y;
+	int x2 = pos2.x, y2 = pos2.y;
+
+	//Find differences and steps based on incrementing or decrementing
 	int dx = abs(x2 - x1);
-	int sx = x1 < x2 ? 1 : -1;
+	int xStep = x1 < x2 ? 1 : -1;
 	int dy = -abs(y2 - y1);
-	int sy = y1 < y2 ? 1 : -1;
+	int yStep = y1 < y2 ? 1 : -1;
+
+	//Initialize error
 	int error = dx + dy;
 
 	while (true)
 	{
+		//Draw current pixel
 		ChangePixel({ x1, y1 }, color);
 
+		//End if we reach the other point
 		if (x1 == x2 && y1 == y2) break;
 
+		//Double the error for comparison (avoids floating points)
 		int e2 = 2 * error;
 
+		//If we are in the negative half-plane
 		if (e2 >= dy)
 		{
 			if (x1 == x2) break;
 
+			//Step along x and accumulate y error
 			error += dy;
-			x1 += sx;
+			x1 += xStep;
 		}
+		//If we are in the positive half-plane
 		if (e2 <= dx)
 		{
 			if (y1 == y2) break;
 
+			//Step along y and accumulate x error
 			error = error + dx;
-			y1 += sy;
+			y1 += yStep;
 		}
 	}
 
@@ -79,7 +184,7 @@ void Graphics::DrawLine(Vector<int> pos1, Vector<int> pos2, u32 color)
 
 ////////////////////////////////////////////////////////////
 //Changes the color of a single pixel
-void Graphics::ChangePixel(Vector<int> pos, u32 color)
+void Graphics::ChangePixel(Vec2<int> pos, u32 color)
 {
 	//Set our pixel variable to the address of the start of our memory block
 	u32* pixel = (u32*)memory;
