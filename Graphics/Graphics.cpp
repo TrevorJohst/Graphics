@@ -12,8 +12,6 @@ Graphics::Graphics(HWND& hWindow)
 	GetClientRect(hWindow, &rect);
 	clientWidth = rect.right - rect.left;
 	clientHeight = rect.bottom - rect.top;
-	//clientWidth = 2000;
-	//clientHeight = 2000;
 
 	//Allocate our memory for storing pixel values
 	memory = VirtualAlloc(
@@ -36,6 +34,212 @@ Graphics::Graphics(HWND& hWindow)
 	ClearScreen(0x333333);
 }
 
+
+////////////////////////////////////////////////////////////
+//Draws a triangle
+void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
+{
+	//Initialize variables
+	Vec2<int> top = v1, middle = v2, bottom = v3;
+
+	//Order all of the verticies in descending order
+	if (top.y > middle.y)
+	{
+		if (top.y > bottom.y)
+		{
+			if (middle.y < bottom.y)
+				middle.Swap(bottom);
+		}
+		else
+		{
+			top.Swap(bottom);
+			bottom.Swap(middle);
+		}
+	}
+	else if (middle.y > bottom.y)
+	{
+		middle.Swap(top);
+
+		if (middle.y < bottom.y)
+			middle.Swap(bottom);
+	}
+	else
+	{
+		top.Swap(bottom);
+	}
+
+	//Handle coincident points edge case
+	int dx = top.x - bottom.x;
+	int dy = top.y - bottom.y;
+
+	if (dy == 0)
+	{
+		int left = min(min(top.x, middle.x), bottom.x);
+		int right = max(max(top.x, middle.x), bottom.x);
+
+		DrawLine({ left, middle.y }, { right, middle.y }, color);
+		return;
+	}
+
+	//Find new middle vertex
+	int newX = static_cast<float>(dx) / static_cast<float>(dy) * (middle.y - top.y) + top.x;
+
+	//Order middle vertices
+	Vec2<int> middleLeft = { newX, middle.y }, middleRight = middle;
+	if (middleLeft.x > middleRight.x) middleLeft.Swap(middleRight);
+
+
+	////Draw flat bottom triangle
+	int lx1 = middleLeft.x, ly1 = middleLeft.y;
+	int lx2 = top.x, ly2 = top.y;
+
+	int ldx = abs(lx2 - lx1);
+	int lxStep = lx1 < lx2 ? 1 : -1;
+	int ldy = -abs(ly2 - ly1);
+	int lyStep = ly1 < ly2 ? 1 : -1;
+	int lerror = ldx + ldy;
+
+	int rx1 = middleRight.x, ry1 = middleRight.y;
+	int rx2 = top.x, ry2 = top.y;
+
+	int rdx = abs(rx2 - rx1);
+	int rxStep = rx1 < rx2 ? 1 : -1;
+	int rdy = -abs(ry2 - ry1);
+	int ryStep = ry1 < ry2 ? 1 : -1;
+	int rerror = rdx + rdy;
+
+	//Draw the left line
+	while (true)
+	{
+		if (lx1 == lx2 && ly1 == ly2) break;
+
+		int le2 = 2 * lerror;
+
+		//If we are in the negative half-plane
+		if (le2 >= ldy)
+		{
+			if (lx1 == lx2) break;
+
+			//Step along x and accumulate y error
+			lerror += ldy;
+			lx1 += lxStep;
+		}
+		//If we are in the positive half-plane
+		if (le2 <= ldx)
+		{
+			if (ly1 == ly2) break;
+
+			//Start drawing the right line
+			while (true)
+			{
+				//Double the error for comparison (avoids floating points)
+				int re2 = 2 * rerror;
+
+				//If we are in the negative half-plane
+				if (re2 >= rdy)
+				{
+					//Step along x and accumulate y error
+					rerror += rdy;
+					rx1 += rxStep;
+				}
+				//If we are in the positive half-plane
+				if (re2 <= rdx)
+				{
+					//Draw the horizontal line between the left and right line
+					for (int x = lx1; x <= rx1; x++)
+						ChangePixel({ x, ly1 }, color);
+
+					//Step along y and accumulate x error
+					rerror = rerror + rdx;
+					ry1 += ryStep;
+
+					break;
+				}
+			}
+
+			//Step along y and accumulate x error
+			lerror = lerror + ldx;
+			ly1 += lyStep;
+		}
+	}
+
+
+	////Draw flat top triangle
+	lx1 = middleLeft.x, ly1 = middleLeft.y;
+	lx2 = bottom.x, ly2 = bottom.y;
+
+	ldx = abs(lx2 - lx1);
+	lxStep = lx1 < lx2 ? 1 : -1;
+	ldy = -abs(ly2 - ly1);
+	lyStep = ly1 < ly2 ? 1 : -1;
+	lerror = ldx + ldy;
+
+	rx1 = middleRight.x, ry1 = middleRight.y;
+	rx2 = bottom.x, ry2 = bottom.y;
+
+	rdx = abs(rx2 - rx1);
+	rxStep = rx1 < rx2 ? 1 : -1;
+	rdy = -abs(ry2 - ry1);
+	ryStep = ry1 < ry2 ? 1 : -1;
+	rerror = rdx + rdy;
+
+	//Draw the left line
+	while (true)
+	{
+		if (lx1 == lx2 && ly1 == ly2) break;
+
+		int le2 = 2 * lerror;
+
+		//If we are in the negative half-plane
+		if (le2 >= ldy)
+		{
+			if (lx1 == lx2) break;
+
+			//Step along x and accumulate y error
+			lerror += ldy;
+			lx1 += lxStep;
+		}
+		//If we are in the positive half-plane
+		if (le2 <= ldx)
+		{
+			if (ly1 == ly2) break;
+
+			//Start drawing the right line
+			while (true)
+			{
+				//Double the error for comparison (avoids floating points)
+				int re2 = 2 * rerror;
+
+				//If we are in the negative half-plane
+				if (re2 >= rdy)
+				{
+					//Step along x and accumulate y error
+					rerror += rdy;
+					rx1 += rxStep;
+				}
+				//If we are in the positive half-plane
+				if (re2 <= rdx)
+				{
+					//Draw the horizontal line between the left and right line
+					for (int x = lx1; x <= rx1; x++)
+						ChangePixel({ x, ly1 }, color);
+
+					//Step along y and accumulate x error
+					rerror = rerror + rdx;
+					ry1 += ryStep;
+
+					break;
+				}
+			}
+
+			//Step along y and accumulate x error
+			lerror = lerror + ldx;
+			ly1 += lyStep;
+		}
+	}
+}
+
+/*
 ////////////////////////////////////////////////////////////
 //Draws a triangle
 void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
@@ -95,9 +299,11 @@ void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
 	dy = top.y - middleLeft.y;
 	float ileftSlope = dy != 0 ? static_cast<float>(top.x - middleLeft.x) / static_cast<float>(dy) : 0;
 	float leftX = static_cast<float>(top.x);
+
 	dy = top.y - middleRight.y;
 	float irightSlope = dy != 0 ? static_cast<float>(top.x - middleRight.x) / static_cast<float>(dy) : 0;
 	float rightX = static_cast<float>(top.x);
+
 	for (int y = top.y; y >= middle.y; y--)
 	{
 		for (int x = static_cast<int>(leftX); x < rightX; x++)
@@ -115,9 +321,11 @@ void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
 	dy = middleLeft.y - bottom.y;
 	ileftSlope = dy != 0 ? static_cast<float>(middleLeft.x - bottom.x) / static_cast<float>(dy) : 0;
 	leftX = static_cast<float>(middleLeft.x);
+
 	dy = middleRight.y - bottom.y;
 	irightSlope = dy != 0 ? static_cast<float>(middleRight.x - bottom.x) / static_cast<float>(dy) : 0;
 	rightX = static_cast<float>(middleRight.x);
+
 	for (int y = middle.y; y >= bottom.y; y--)
 	{
 		for (int x = static_cast<int>(leftX); x < rightX; x++)
@@ -131,6 +339,7 @@ void Graphics::DrawTriangle(Vec2<int> v1, Vec2<int> v2, Vec2<int> v3, u32 color)
 		rightX -= irightSlope;
 	}
 }
+*/
 
 ////////////////////////////////////////////////////////////
 //Draws a line between two points
@@ -179,7 +388,6 @@ void Graphics::DrawLine(Vec2<int> pos1, Vec2<int> pos2, u32 color)
 			y1 += yStep;
 		}
 	}
-
 }
 
 ////////////////////////////////////////////////////////////
