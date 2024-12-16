@@ -4,22 +4,23 @@ template <typename T>
 struct Vec2
 {
 public:
-	////////////////////////////////////////////////////////////
-	//Swaps the values of two vectors
+	//////////////////////////////////////////////////////////////////
+	// @brief Swaps the values of two vectors
+	//
+	// @param rhs: vector to swap with
 	void Swap(Vec2<T>& rhs)
 	{
-		//Store temporary values
-		T xTemp = x;
-		T yTemp = y;
-
-		//Store rhs values into x and y
+		// Swap x
+		T temp = x;
 		x = rhs.x;
-		y = rhs.y;
+		rhs.x = temp;
 
-		//Store temporary lhs values into x and y
-		rhs.x = xTemp;
-		rhs.y = yTemp;
+		// Swap y
+		temp = y;
+		y = rhs.y;
+		rhs.y = temp;
 	}
+
 public:
 	T x;
 	T y;

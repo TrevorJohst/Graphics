@@ -2,73 +2,72 @@
 #include "Resource.h"
 #include "Display.h"
 
-////////////////////////////////////////////////////////////
-//Forward declaration of WindowProc
+//////////////////////////////////////////////////////////////////
+// Forward declaration of WindowProc
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-////////////////////////////////////////////////////////////
-//Main window that our program will enter through
+//////////////////////////////////////////////////////////////////
+// Main window that our program will enter through
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow)
 {
-	//Store our window name
+	// Store our window name
 	const wchar_t CLASS_NAME[] = L"Class Name";
 
-	//Create the window class object
+	// Create the window class object
 	WNDCLASS wc = {};
 
-	//Initialize window class data
+	// Initialize window class data
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 	wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
-	//Register the class
+	// Register the class
 	RegisterClass(&wc);
 
 	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-	//Create the window
+	// Create the window
 	HWND window = CreateWindowEx(
-		0,										//Optional window style
-		CLASS_NAME,								//Window class
-		L"Graphics",							//Window text
-		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,	//Window style
+		0,										// Optional window style
+		CLASS_NAME,								// Window class
+		L"Graphics",							// Window text
+		WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,	// Window style
 
-		//Size and Position
-		0, 0, screenWidth, screenHeight,
+		0, 0, screenWidth, screenHeight,		// Size and Position
 
-		NULL,					//Parent window
-		NULL,					//Menu
-		hInstance,				//Instance handle
-		NULL					//Additional application data
+		NULL,					// Parent window
+		NULL,					// Menu
+		hInstance,				// Instance handle
+		NULL					// Additional application data
 	);
 
-	//If the window is null terminate the program
+	// If the window is null terminate the program
 	if (window == NULL)
 	{
 		return 0;
 	}
 
-	//Display the window to the screen
+	// Display the window to the screen
 	ShowWindow(window, SW_SHOWMAXIMIZED);
 
-	//Create graphics object to pass into display
+	// Create graphics object to pass into display
 	Graphics graphics(window);
 
-	//Create display object for user to modify screen
+	// Create display object for user to modify screen
 	Display display(graphics);
 
-	//Temp boolean value to keep the main loop going
+	// Temp boolean value to keep the main loop going
 	bool running = true;
 
-	//Main loop
+	// Main loop
 	while (running)
 	{
-		//Create message
+		// Create message
 		MSG msg = {};
 
-		//Main message loop
+		// Main message loop
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
@@ -84,11 +83,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	return 0;
 }
 
-////////////////////////////////////////////////////////////
-//Window behavior function
+//////////////////////////////////////////////////////////////////
+// Window behavior function
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	//Switch on message type
+	// Switch on message type
 	switch (uMsg)
 	{
 	case WM_WINDOWPOSCHANGING:
@@ -99,7 +98,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ShowWindow(hwnd, SW_MAXIMIZE);
 		break;
 	}
-		//Destroy the window
+	// Destroy the window
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;

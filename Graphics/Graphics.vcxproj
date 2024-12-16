@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Resource.h" />
