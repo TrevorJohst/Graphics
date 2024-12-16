@@ -18,7 +18,7 @@ Graphics::Graphics(HWND& hWindow)
     // Allocate our memory for storing pixel values
     memory = VirtualAlloc(
         NULL,													// Location of desired memory (null means we dont care)
-        static_cast<SIZE_T>(clientWidth * clientHeight) 
+        static_cast<size_t>(clientWidth * clientHeight) 
             * sizeof(u32),		                                // Amount of memory we want in bytes (num pixels * num bytes per pixel)
         MEM_RESERVE | MEM_COMMIT,								// Type of memory allocation (we want to reserve it and commit to it)
         PAGE_READWRITE											// Memory protection (we will be writing and reading the memory)
@@ -44,7 +44,33 @@ Graphics::Graphics(HWND& hWindow)
 // Draws a rectangle
 void Graphics::DrawRectangle(const Vec2<int>& corner1, const Vec2<int>& corner2, const Color& color)
 {
+    // Initialize variables
+    int top, bottom, left, right;
+    if (corner1.y > corner2.y)
+    {
+        top = corner1.y;
+        bottom = corner2.y;
+    }
+    else
+    {
+        top = corner2.y;
+        bottom = corner1.y;
+    }
+    if (corner1.x < corner2.x)
+    {
+        left = corner1.x;
+        right = corner2.x;
+    }
+    else
+    {
+        left = corner2.x;
+        right = corner1.x;
+    }
 
+    // Draw every line in the rectangle, skip Bresenham's because horizontal
+    for (int y = bottom; y < top; ++y)
+        for (int x = left; x < right; ++x)
+            ChangePixel({ x, y }, color);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -336,7 +362,7 @@ void Graphics::ClearScreen(const Color& color)
     u32* pixel = (u32*)memory;
 
     // Loop through every pixel in the memory
-    for (int i = 0; i < clientWidth * clientHeight; ++i)
+    for (size_t i = 0; i < static_cast<size_t>(clientWidth * clientHeight); ++i)
     {
         // Set the current pixel to our passed in color and move on to the next
         *pixel++ = color.hex;
