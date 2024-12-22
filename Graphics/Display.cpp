@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////
 // Creates a display object storing a graphics reference
-Display::Display(Graphics gfx)
+Display::Display( Graphics gfx )
     :
     graphics(gfx)
 {}
