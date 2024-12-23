@@ -1,11 +1,55 @@
 #pragma once
 #include "Windows/Win.h"
 #include "Windows/Resource.h"
+#include "Utility/GraphicsException.h"
 
 //////////////////////////////////////////////////////////////////
 // @brief A single encapsulated window
 class Window
 {
+public:
+    //////////////////////////////////////////////////////////////////
+    // @brief Custom Windows exceptions with additional information
+    class Exception : public GraphicsException
+    {
+    public:
+        //////////////////////////////////////////////////////////////////
+        // @brief Constructs a custom Window::Exception
+        //
+        // @param line, file: where the exception is thrown from
+        // @param hr: the Windows HRESULT error code for this exception
+        Exception( 
+            int         line, 
+            const char* file, 
+            HRESULT     hr ) noexcept;
+
+        //////////////////////////////////////////////////////////////////
+        // @brief Human readable error string recovered from exception
+        const char* what() const noexcept override;
+
+        //////////////////////////////////////////////////////////////////
+        // @brief Returns Windows Error type of exception
+        virtual const char* GetType() const noexcept override;
+
+        //////////////////////////////////////////////////////////////////
+        // @brief Translates a Windows HRESULT error code into a string
+        //
+        // @param hr: the Windows HRESULT error code to be translated
+        // @return a string representation of the translated code
+        static std::string TranslateErrorCode( HRESULT hr );
+
+        //////////////////////////////////////////////////////////////////
+        // @brief Returns the Windows HRESULT error code of this exception
+        HRESULT GetErrorCode() const noexcept;
+
+        //////////////////////////////////////////////////////////////////
+        // @brief Returns the string of the error code for this exception
+        std::string GetErrorString() const noexcept;
+
+    private:
+        HRESULT hr;
+    };
+
 private:
     //////////////////////////////////////////////////////////////////
     // @brief A singleton for managing instantitation and cleanup
@@ -13,15 +57,11 @@ private:
     {
     public:
         //////////////////////////////////////////////////////////////////
-        // @brief Access the window's name
-        //
-        // @return the name of the window in the form of a LPCWSTR
+        // @brief Returns the window's name as a LPCWSTR
         static LPCWSTR GetName() noexcept;
 
         //////////////////////////////////////////////////////////////////
-        // @brief Access the window's instance handle
-        //
-        // @return the handle to the instance
+        // @brief Returns the window's instance handle
         static HINSTANCE GetInstance() noexcept;
 
         //////////////////////////////////////////////////////////////////
@@ -31,6 +71,7 @@ private:
         //////////////////////////////////////////////////////////////////
         // @brief Assignment operator is deleted to enforce singleton
         WindowClass& operator=( const WindowClass& ) = delete;
+
     private:
         //////////////////////////////////////////////////////////////////
         // @brief Constructs a single window 
@@ -59,7 +100,7 @@ public:
         int            clientWidth,
         int            clientHeight,
         const wchar_t* name,
-        bool           fullscreen = false) noexcept;
+        bool           fullscreen = false);
 
     //////////////////////////////////////////////////////////////////
     // @brief Destroys the window freeing the instance
@@ -119,3 +160,7 @@ private:
     HWND hWnd;
     bool fullscreen;
 };
+
+// Error macros
+#define WND_EXCEPT( hr ) Window::Exception( __LINE__, __FILE__, hr )
+#define WND_LAST_EXCEPT() Window::Exception( __LINE__, __FILE__, GetLastError() )

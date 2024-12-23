@@ -1,4 +1,77 @@
 #include "Windows/Window.h"
+#include <sstream>
+#include <cassert>
+
+// =============================
+// Window::Exception definitions
+// =============================
+
+//////////////////////////////////////////////////////////////////
+// Constructs a custom Window::Exception
+Window::Exception::Exception(
+    int         line,
+    const char* file,
+    HRESULT     hr ) noexcept
+    :
+    GraphicsException( line, file ),
+    hr( hr )
+{}
+
+//////////////////////////////////////////////////////////////////
+// Human readable error string recovered from exception
+const char* Window::Exception::what() const noexcept
+{
+    // Format the error string and store in buffer
+    std::ostringstream oss;
+    oss << GetType() << std::endl
+        << "[Error Code] " << GetErrorCode() << std::endl
+        << "[Description] " << GetErrorString() << std::endl
+        << GetOriginString();
+    whatBuffer = oss.str();
+
+    // Return pointer to persistent buffer string
+    return whatBuffer.c_str();
+}
+
+//////////////////////////////////////////////////////////////////
+// Returns Windows Error type of exception
+const char* Window::Exception::GetType() const noexcept { return "Window Exception"; }
+
+//////////////////////////////////////////////////////////////////
+// Translates a Windows HRESULT error code into a string
+std::string Window::Exception::TranslateErrorCode( HRESULT hr )
+{
+    // Translate the message using the Windows API
+    char* pMsgBuf = nullptr;
+    DWORD nMsgLen = FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,          // Format flags
+        nullptr,                                // Message definition
+        hr,                                     // Error code
+        0,                                      // Language (selects based on device settings)
+        reinterpret_cast<LPSTR>( &pMsgBuf ),    // Pointer to our pointer, redirected to filled buffer
+        0,                                      // Output buffer size (set automatically by flag)
+        nullptr                                 // Optional arguments
+    );
+
+    // Invalid error code, buffer was not filled
+    if ( nMsgLen == 0 )
+        return "Unknown error code";
+
+    // Free the message buffer and return the formatted error string
+    std::string errorString = pMsgBuf;
+    LocalFree( pMsgBuf );
+    return errorString;
+}
+
+//////////////////////////////////////////////////////////////////
+// Returns the Windows HRESULT error code of this exception
+HRESULT Window::Exception::GetErrorCode() const noexcept { return hr; }
+
+//////////////////////////////////////////////////////////////////
+// Returns the string of the error code for this exception
+std::string Window::Exception::GetErrorString() const noexcept { return TranslateErrorCode( hr ); }
 
 // ===============================
 // Window::WindowClass definitions
@@ -56,10 +129,12 @@ Window::Window(
     int            clientWidth, 
     int            clientHeight,
     const wchar_t* name,
-    bool           fullscreen ) noexcept
+    bool           fullscreen )
     :
     fullscreen(fullscreen)
 {
+    assert( clientWidth >= 0 && clientHeight >= 0 );
+
     // Hard coded window style
     const auto STYLE = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 
@@ -69,7 +144,10 @@ Window::Window(
     wr.right = clientWidth;
     wr.top = 0;
     wr.bottom = clientHeight;
-    AdjustWindowRect( &wr, STYLE, FALSE );
+
+    // Throw error if window adjustment failes
+    if ( AdjustWindowRect( &wr, STYLE, FALSE ) == FALSE )
+        throw WND_LAST_EXCEPT();
 
     // Extract full width and height
     width = wr.right;
@@ -87,6 +165,10 @@ Window::Window(
         WindowClass::GetInstance(),	    // Instance handle
         this					        // Additional application data
     );
+
+    // Window creation failed
+    if ( hWnd == nullptr )
+        throw WND_LAST_EXCEPT();
 
     // Show the window
     ShowWindow( hWnd, SW_SHOWDEFAULT );

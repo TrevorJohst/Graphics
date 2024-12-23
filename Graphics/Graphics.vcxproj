@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="src\Graphics\Display.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
+    <ClCompile Include="src\Utility\GraphicsException.cpp" />
     <ClCompile Include="src\Windows\Main.cpp" />
     <ClCompile Include="src\Windows\Window.cpp" />
   </ItemGroup>
@@ -154,6 +155,7 @@
     <ClInclude Include="include\Graphics\Display.h" />
     <ClInclude Include="include\Graphics\Graphics.h" />
     <ClInclude Include="include\Utility\Color.h" />
+    <ClInclude Include="include\Utility\GraphicsException.h" />
     <ClInclude Include="include\Utility\Vec2.h" />
     <ClInclude Include="include\Windows\Resource.h" />
     <ClInclude Include="include\Windows\Win.h" />

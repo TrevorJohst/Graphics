@@ -1,7 +1,7 @@
+#include "Graphics/Graphics.h"
 #include <new>
 #include <cassert>
 #include <algorithm>
-#include "Graphics/Graphics.h"
 
 // ====================
 // Graphics definitions
