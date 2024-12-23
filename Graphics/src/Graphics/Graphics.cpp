@@ -1,17 +1,22 @@
 #include <new>
 #include <cassert>
-#include "Graphics.h"
+#include <algorithm>
+#include "Graphics/Graphics.h"
+
+// ====================
+// Graphics definitions
+// ====================
 
 //////////////////////////////////////////////////////////////////
 // Constructs the graphics object and stores necessary data
-Graphics::Graphics( HWND& hWindow )
+Graphics::Graphics( const HWND& hWindow )
 {
     // Get device handle to our window
-    hdc = GetDC(hWindow);
+    hdc = GetDC( hWindow );
 
     // Get window rectangle and store info about it
     RECT rect;
-    GetClientRect(hWindow, &rect);
+    GetClientRect( hWindow, &rect );
     clientWidth = rect.right - rect.left;
     clientHeight = rect.bottom - rect.top;
 
@@ -25,19 +30,19 @@ Graphics::Graphics( HWND& hWindow )
     );
 
     // Throw an error if we did not receive memory
-    if (!memory) 
+    if ( !memory ) 
         throw std::bad_alloc();
 
     // Initialize values for the bitmap so it can be passed as our new frame each loop
-    bitmap.bmiHeader.biSize = sizeof(bitmap.bmiHeader);			// Number of bytes required by the struct (not including color table)
+    bitmap.bmiHeader.biSize = sizeof( bitmap.bmiHeader );		// Number of bytes required by the struct (not including color table)
     bitmap.bmiHeader.biWidth = clientWidth;						// Width of the bitmap in pixels (i.e. the width of our window)
     bitmap.bmiHeader.biHeight = clientHeight;					// Height of the bitmap in pixels (i.e. the height of our window)
     bitmap.bmiHeader.biPlanes = 1;								// Must be set to 1 (says that the data is ordered in memory?)
-    bitmap.bmiHeader.biBitCount = sizeof(unsigned int) * 8;		// Number of bits per pixel (num bytes per pixel * num bits in a byte)
+    bitmap.bmiHeader.biBitCount = sizeof( unsigned int ) * 8;	// Number of bits per pixel (num bytes per pixel * num bits in a byte)
     bitmap.bmiHeader.biCompression = BI_RGB;					// Compression type (ours is uncompressed RGB values)
 
     // Set the screen to the default grey color
-    ClearScreen(0x333333);
+    ClearScreen( 0x333333 );
 }
 
 //////////////////////////////////////////////////////////////////
@@ -49,7 +54,7 @@ void Graphics::DrawRectangle(
 {
     // Initialize variables
     int top, bottom, left, right;
-    if (corner1.y > corner2.y)
+    if ( corner1.y > corner2.y )
     {
         top = corner1.y;
         bottom = corner2.y;
@@ -59,7 +64,7 @@ void Graphics::DrawRectangle(
         top = corner2.y;
         bottom = corner1.y;
     }
-    if (corner1.x < corner2.x)
+    if ( corner1.x < corner2.x )
     {
         left = corner1.x;
         right = corner2.x;
@@ -71,114 +76,114 @@ void Graphics::DrawRectangle(
     }
 
     // Draw every line in the rectangle, skip Bresenham's because horizontal
-    for (int y = bottom; y < top; ++y)
-        for (int x = left; x < right; ++x)
-            ChangePixel({ x, y }, color);
+    for ( int y = bottom; y < top; ++y )
+        for ( int x = left; x < right; ++x )
+            ChangePixel( { x, y }, color );
 }
 
 //////////////////////////////////////////////////////////////////
 // Draws a triangle
 void Graphics::DrawTriangle(
-    const Vec2<int>& v1, 
-    const Vec2<int>& v2, 
-    const Vec2<int>& v3, 
+    const Vec2<int>& v1,
+    const Vec2<int>& v2,
+    const Vec2<int>& v3,
     const Color&     color )
 {
     // Initialize variables
     Vec2<int> top = v1, middle = v2, bottom = v3;
 
     // Order all of the verticies in descending order
-    if (top.y < middle.y)
-        top.Swap(middle);
+    if ( top.y < middle.y )
+        top.Swap( middle );
 
-    if (middle.y < bottom.y)
+    if ( middle.y < bottom.y )
     {
-        middle.Swap(bottom);
+        middle.Swap( bottom );
 
-        if (top.y < middle.y)
-            top.Swap(middle);
+        if ( top.y < middle.y )
+            top.Swap( middle );
     }
 
     // Handle coincident points edge case
     int dx = top.x - bottom.x;
     int dy = top.y - bottom.y;
 
-    if (dy == 0)
+    if ( dy == 0 )
     {
-        int left = min(min(top.x, middle.x), bottom.x);
-        int right = max(max(top.x, middle.x), bottom.x);
+        int left = std::min( std::min( top.x, middle.x ), bottom.x );
+        int right = std::max( std::max( top.x, middle.x ), bottom.x );
 
-        DrawLine({ left, middle.y }, { right, middle.y }, color);
+        DrawLine( { left, middle.y }, { right, middle.y }, color );
         return;
     }
 
     // Find new middle vertex
-    int newX = static_cast<int>(static_cast<float>(dx) / static_cast<float>(dy) * (middle.y - top.y) + top.x);
+    int newX = static_cast<int>( static_cast<float>( dx ) / static_cast<float>( dy ) * ( middle.y - top.y ) + top.x );
 
     // Order middle vertices
     Vec2<int> middleLeft = { newX, middle.y }, middleRight = middle;
-    if (middleLeft.x > middleRight.x) middleLeft.Swap(middleRight);
+    if ( middleLeft.x > middleRight.x ) middleLeft.Swap( middleRight );
 
 
     //// Draw flat bottom triangle
     int lx1 = middleLeft.x, ly1 = middleLeft.y;
     int lx2 = top.x, ly2 = top.y;
 
-    int ldx = abs(lx2 - lx1);
+    int ldx = abs( lx2 - lx1 );
     int lxStep = lx1 < lx2 ? 1 : -1;
-    int ldy = -abs(ly2 - ly1);
+    int ldy = -abs( ly2 - ly1 );
     int lyStep = ly1 < ly2 ? 1 : -1;
     int lerror = ldx + ldy;
 
     int rx1 = middleRight.x, ry1 = middleRight.y;
     int rx2 = top.x, ry2 = top.y;
 
-    int rdx = abs(rx2 - rx1);
+    int rdx = abs( rx2 - rx1 );
     int rxStep = rx1 < rx2 ? 1 : -1;
-    int rdy = -abs(ry2 - ry1);
+    int rdy = -abs( ry2 - ry1 );
     int ryStep = ry1 < ry2 ? 1 : -1;
     int rerror = rdx + rdy;
 
     //  Draw the left line
-    while (true)
+    while ( true )
     {
-        if (lx1 == lx2 && ly1 == ly2) break;
+        if ( lx1 == lx2 && ly1 == ly2 ) break;
 
         int le2 = 2 * lerror;
 
         // If we are in the negative half-plane
-        if (le2 >= ldy)
+        if ( le2 >= ldy )
         {
-            if (lx1 == lx2) break;
+            if ( lx1 == lx2 ) break;
 
             // Step along x and accumulate y error
             lerror += ldy;
             lx1 += lxStep;
         }
         // If we are in the positive half-plane
-        if (le2 <= ldx)
+        if ( le2 <= ldx )
         {
-            if (ly1 == ly2) break;
+            if ( ly1 == ly2 ) break;
 
             // Start drawing the right line
-            while (true)
+            while ( true )
             {
                 // Double the error for comparison (avoids floating points)
                 int re2 = 2 * rerror;
 
                 // If we are in the negative half-plane
-                if (re2 >= rdy)
+                if ( re2 >= rdy )
                 {
                     // Step along x and accumulate y error
                     rerror += rdy;
                     rx1 += rxStep;
                 }
                 // If we are in the positive half-plane
-                if (re2 <= rdx)
+                if ( re2 <= rdx )
                 {
                     // Draw the horizontal line between the left and right line
-                    for (int x = lx1; x <= rx1; x++)
-                        ChangePixel({ x, ly1 }, color);
+                    for ( int x = lx1; x <= rx1; x++ )
+                        ChangePixel( { x, ly1 }, color );
 
                     // Step along y and accumulate x error
                     rerror = rerror + rdx;
@@ -199,61 +204,61 @@ void Graphics::DrawTriangle(
     lx1 = middleLeft.x, ly1 = middleLeft.y;
     lx2 = bottom.x, ly2 = bottom.y;
 
-    ldx = abs(lx2 - lx1);
+    ldx = abs( lx2 - lx1 );
     lxStep = lx1 < lx2 ? 1 : -1;
-    ldy = -abs(ly2 - ly1);
+    ldy = -abs( ly2 - ly1 );
     lyStep = ly1 < ly2 ? 1 : -1;
     lerror = ldx + ldy;
 
     rx1 = middleRight.x, ry1 = middleRight.y;
     rx2 = bottom.x, ry2 = bottom.y;
 
-    rdx = abs(rx2 - rx1);
+    rdx = abs( rx2 - rx1 );
     rxStep = rx1 < rx2 ? 1 : -1;
-    rdy = -abs(ry2 - ry1);
+    rdy = -abs( ry2 - ry1 );
     ryStep = ry1 < ry2 ? 1 : -1;
     rerror = rdx + rdy;
 
     // Draw the left line
-    while (true)
+    while ( true )
     {
-        if (lx1 == lx2 && ly1 == ly2) break;
+        if ( lx1 == lx2 && ly1 == ly2 ) break;
 
         int le2 = 2 * lerror;
 
         // If we are in the negative half-plane
-        if (le2 >= ldy)
+        if ( le2 >= ldy )
         {
-            if (lx1 == lx2) break;
+            if ( lx1 == lx2 ) break;
 
             // Step along x and accumulate y error
             lerror += ldy;
             lx1 += lxStep;
         }
         // If we are in the positive half-plane
-        if (le2 <= ldx)
+        if ( le2 <= ldx )
         {
-            if (ly1 == ly2) break;
+            if ( ly1 == ly2 ) break;
 
             // Start drawing the right line
-            while (true)
+            while ( true )
             {
                 // Double the error for comparison (avoids floating points)
                 int re2 = 2 * rerror;
 
                 // If we are in the negative half-plane
-                if (re2 >= rdy)
+                if ( re2 >= rdy )
                 {
                     // Step along x and accumulate y error
                     rerror += rdy;
                     rx1 += rxStep;
                 }
                 // If we are in the positive half-plane
-                if (re2 <= rdx)
+                if ( re2 <= rdx )
                 {
                     // Draw the horizontal line between the left and right line
-                    for (int x = lx1; x <= rx1; x++)
-                        ChangePixel({ x, ly1 }, color);
+                    for ( int x = lx1; x <= rx1; x++ )
+                        ChangePixel( { x, ly1 }, color );
 
                     // Step along y and accumulate x error
                     rerror = rerror + rdx;
@@ -273,8 +278,8 @@ void Graphics::DrawTriangle(
 //////////////////////////////////////////////////////////////////
 // Draws a line between two points
 void Graphics::DrawLine(
-    const Vec2<int>& pos1, 
-    const Vec2<int>& pos2, 
+    const Vec2<int>& pos1,
+    const Vec2<int>& pos2,
     const Color&     color )
 {
     // Unpack coordinates
@@ -282,38 +287,38 @@ void Graphics::DrawLine(
     int x2 = pos2.x, y2 = pos2.y;
 
     // Find differences and steps based on incrementing or decrementing
-    int dx = abs(x2 - x1);
+    int dx = abs( x2 - x1 );
     int xStep = x1 < x2 ? 1 : -1;
-    int dy = -abs(y2 - y1);
+    int dy = -abs( y2 - y1 );
     int yStep = y1 < y2 ? 1 : -1;
 
     // Initialize error
     int error = dx + dy;
 
-    while (true)
+    while ( true )
     {
         // Draw current pixel
-        ChangePixel({ x1, y1 }, color);
+        ChangePixel( { x1, y1 }, color );
 
         // End if we reach the other point
-        if (x1 == x2 && y1 == y2) break;
+        if ( x1 == x2 && y1 == y2 ) break;
 
         // Double the error for comparison (avoids floating points)
         int e2 = 2 * error;
 
         // If we are in the negative half-plane
-        if (e2 >= dy)
+        if ( e2 >= dy )
         {
-            if (x1 == x2) break;
+            if ( x1 == x2 ) break;
 
             // Step along x and accumulate y error
             error += dy;
             x1 += xStep;
         }
         // If we are in the positive half-plane
-        if (e2 <= dx)
+        if ( e2 <= dx )
         {
-            if (y1 == y2) break;
+            if ( y1 == y2 ) break;
 
             // Step along y and accumulate x error
             error = error + dx;
@@ -325,11 +330,11 @@ void Graphics::DrawLine(
 //////////////////////////////////////////////////////////////////
 // Changes the color of a single pixel
 void Graphics::ChangePixel(
-    const Vec2<int>& pos, 
-    const Color&     color)
+    const Vec2<int>& pos,
+    const Color&     color )
 {
-    assert(pos.x >= 0 && pos.x < clientWidth);
-    assert(pos.y >= 0 && pos.y < clientHeight);
+    assert( pos.x >= 0 && pos.x < clientWidth );
+    assert( pos.y >= 0 && pos.y < clientHeight );
 
     // Set our pixel variable to the address of the start of our memory block
     u32* pixel = (u32*)memory;
@@ -363,7 +368,7 @@ void Graphics::Update()
     );
 
     // Set the screen to the default color
-    ClearScreen(defaultColor);
+    ClearScreen( defaultColor );
 }
 
 //////////////////////////////////////////////////////////////////
@@ -374,7 +379,7 @@ void Graphics::ClearScreen( const Color& color )
     u32* pixel = (u32*)memory;
 
     // Loop through every pixel in the memory
-    for (size_t i = 0; i < static_cast<size_t>(clientWidth * clientHeight); ++i)
+    for ( size_t i = 0; i < static_cast<size_t>( clientWidth * clientHeight ); ++i )
     {
         // Set the current pixel to our passed in color and move on to the next
         *pixel++ = color.hex;

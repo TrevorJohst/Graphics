@@ -1,5 +1,7 @@
 #pragma once
 
+//////////////////////////////////////////////////////////////////
+// @brief 2 dimensional vector with x and y
 template <typename T>
 struct Vec2
 {
