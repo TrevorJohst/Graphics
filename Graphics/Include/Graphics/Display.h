@@ -12,6 +12,7 @@ public:
     // @param gfx: the graphics object for this display
     Display( Graphics gfx );
 
+
     //////////////////////////////////////////////////////////////////
     // @brief Public function that completes all frame logic
     void DisplayFrame();

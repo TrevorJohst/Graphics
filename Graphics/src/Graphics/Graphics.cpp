@@ -3,12 +3,13 @@
 #include <cassert>
 #include <algorithm>
 
-// ====================
-// Graphics definitions
-// ====================
+/* ======================================================================================================= */
+/*                           [PUBLIC] Graphics                                                             */
+/* ======================================================================================================= */
 
 //////////////////////////////////////////////////////////////////
-// Constructs the graphics object and stores necessary data
+// [PUBLIC] Constructs the graphics object and stores necessary 
+//          data
 Graphics::Graphics( const HWND& hWindow )
 {
     // Get device handle to our window
@@ -46,7 +47,7 @@ Graphics::Graphics( const HWND& hWindow )
 }
 
 //////////////////////////////////////////////////////////////////
-// Draws a rectangle
+// [PUBLIC] Draws a rectangle
 void Graphics::DrawRectangle(
     const Vec2<int>& corner1, 
     const Vec2<int>& corner2, 
@@ -82,7 +83,7 @@ void Graphics::DrawRectangle(
 }
 
 //////////////////////////////////////////////////////////////////
-// Draws a triangle
+// [PUBLIC] Draws a triangle
 void Graphics::DrawTriangle(
     const Vec2<int>& v1,
     const Vec2<int>& v2,
@@ -122,7 +123,8 @@ void Graphics::DrawTriangle(
 
     // Order middle vertices
     Vec2<int> middleLeft = { newX, middle.y }, middleRight = middle;
-    if ( middleLeft.x > middleRight.x ) middleLeft.Swap( middleRight );
+    if ( middleLeft.x > middleRight.x ) 
+        middleLeft.Swap( middleRight );
 
 
     //// Draw flat bottom triangle
@@ -276,7 +278,7 @@ void Graphics::DrawTriangle(
 }
 
 //////////////////////////////////////////////////////////////////
-// Draws a line between two points
+// [PUBLIC] Draws a line between two points
 void Graphics::DrawLine(
     const Vec2<int>& pos1,
     const Vec2<int>& pos2,
@@ -328,7 +330,7 @@ void Graphics::DrawLine(
 }
 
 //////////////////////////////////////////////////////////////////
-// Changes the color of a single pixel
+// [PUBLIC] Changes the color of a single pixel
 void Graphics::ChangePixel(
     const Vec2<int>& pos,
     const Color&     color )
@@ -347,7 +349,7 @@ void Graphics::ChangePixel(
 }
 
 //////////////////////////////////////////////////////////////////
-// Displays the current frame to the screen and resets
+// [PUBLIC] Displays the current frame to the screen and resets
 void Graphics::Update()
 {
     // Method that takes in a device independent bitmap and draws it to the screen
@@ -372,7 +374,7 @@ void Graphics::Update()
 }
 
 //////////////////////////////////////////////////////////////////
-// Clears the entire screen with a single color
+// [PRIVATE] Clears the entire screen with a single color
 void Graphics::ClearScreen( const Color& color )
 {
     // Set our pixel variable to the address of the start of our memory block

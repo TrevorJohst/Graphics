@@ -2,12 +2,12 @@
 #include <sstream>
 #include <cassert>
 
-// =============================
-// Window::Exception definitions
-// =============================
+/* ======================================================================================================= */
+/*                           [PUBLIC] Window::Exception                                                    */
+/* ======================================================================================================= */
 
 //////////////////////////////////////////////////////////////////
-// Constructs a custom Window::Exception
+// [PUBLIC] Constructs a custom Window::Exception
 Window::Exception::Exception(
     int         line,
     const char* file,
@@ -18,7 +18,7 @@ Window::Exception::Exception(
 {}
 
 //////////////////////////////////////////////////////////////////
-// Human readable error string recovered from exception
+// [PUBLIC] Human readable error string recovered from exception
 const char* Window::Exception::what() const noexcept
 {
     // Format the error string and store in buffer
@@ -34,11 +34,20 @@ const char* Window::Exception::what() const noexcept
 }
 
 //////////////////////////////////////////////////////////////////
-// Returns Windows Error type of exception
+// [PUBLIC] Returns Windows Error type of exception
 const char* Window::Exception::GetType() const noexcept { return "Window Exception"; }
 
 //////////////////////////////////////////////////////////////////
-// Translates a Windows HRESULT error code into a string
+// [PUBLIC] Returns the Windows HRESULT error code of this exception
+HRESULT Window::Exception::GetErrorCode() const noexcept { return hr; }
+
+//////////////////////////////////////////////////////////////////
+// [PUBLIC] Returns the string of the error code for this 
+//          exception
+std::string Window::Exception::GetErrorString() const noexcept { return TranslateErrorCode( hr ); }
+
+//////////////////////////////////////////////////////////////////
+// [PUBLIC] Translates a Windows HRESULT error code into a string
 std::string Window::Exception::TranslateErrorCode( HRESULT hr )
 {
     // Translate the message using the Windows API
@@ -65,31 +74,23 @@ std::string Window::Exception::TranslateErrorCode( HRESULT hr )
     return errorString;
 }
 
-//////////////////////////////////////////////////////////////////
-// Returns the Windows HRESULT error code of this exception
-HRESULT Window::Exception::GetErrorCode() const noexcept { return hr; }
-
-//////////////////////////////////////////////////////////////////
-// Returns the string of the error code for this exception
-std::string Window::Exception::GetErrorString() const noexcept { return TranslateErrorCode( hr ); }
-
-// ===============================
-// Window::WindowClass definitions
-// ===============================
+/* ======================================================================================================= */
+/*                           [PRIVATE] Window::WindowClass                                                 */
+/* ======================================================================================================= */
 
 // wndClass singleton declaration
 Window::WindowClass Window::WindowClass::wndClass;
 
 //////////////////////////////////////////////////////////////////
-// Access the window's name
+// [PUBLIC] Access the window's name
 LPCWSTR Window::WindowClass::GetName() noexcept { return wndClassName; }
 
 //////////////////////////////////////////////////////////////////
-// Access the window's instance handle
+// [PUBLIC] Access the window's instance handle
 HINSTANCE Window::WindowClass::GetInstance() noexcept { return wndClass.hInst; }
 
 //////////////////////////////////////////////////////////////////
-// Constructs a single window 
+// [PRIVATE] Constructs a single window 
 Window::WindowClass::WindowClass() noexcept
     :
     hInst( GetModuleHandle( nullptr ) )
@@ -116,15 +117,15 @@ Window::WindowClass::WindowClass() noexcept
 }
 
 //////////////////////////////////////////////////////////////////
-// Destroys a window on exit 
+// [PRIVATE] Destroys a window on exit 
 Window::WindowClass::~WindowClass() { UnregisterClass( wndClassName, GetInstance() ); }
 
-// ==================
-// Window definitions
-// ==================
+/* ======================================================================================================= */
+/*                           [PUBLIC] Window                                                               */
+/* ======================================================================================================= */
 
 //////////////////////////////////////////////////////////////////
-// Creates a single window with desired parameters
+// [PUBLIC] Creates a single window with desired parameters
 Window::Window( 
     int            clientWidth, 
     int            clientHeight,
@@ -175,15 +176,15 @@ Window::Window(
 }
 
 //////////////////////////////////////////////////////////////////
-// Destroys the window freeing the instance
+// [PUBLIC] Destroys the window freeing the instance
 Window::~Window() { DestroyWindow( hWnd ); }
 
 //////////////////////////////////////////////////////////////////
-// Access the window's handle
+// [PUBLIC] Access the window's handle
 HWND Window::GetHandle() noexcept { return hWnd; }
 
 //////////////////////////////////////////////////////////////////
-// Sets up message handling at time of window creation
+// [PRIVATE] Sets up message handling at time of window creation
 LRESULT Window::HandleMsgSetup( 
     HWND   hWnd, 
     UINT   uMsg,
@@ -211,7 +212,7 @@ LRESULT Window::HandleMsgSetup(
 }
 
 //////////////////////////////////////////////////////////////////
-// Passes message handling to HandleMsg at runtime
+// [PRIVATE] Passes message handling to HandleMsg at runtime
 LRESULT Window::HandleMsgThunk( 
     HWND   hWnd, 
     UINT   uMsg,
@@ -226,7 +227,7 @@ LRESULT Window::HandleMsgThunk(
 }
 
 //////////////////////////////////////////////////////////////////
-// Processes all Windows messages for this window
+// [PRIVATE] Processes all Windows messages for this window
 LRESULT Window::HandleMsg( 
     HWND   hWnd, 
     UINT   uMsg, 
@@ -252,6 +253,36 @@ LRESULT Window::HandleMsg(
         {
             PostQuitMessage( 0 );
             return 0;
+        }
+        // Clear key states when window loses focus
+        case WM_KILLFOCUS:
+        {
+            kbd.ClearState();
+            break;
+        }
+        // Key pressed down event
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        {
+            // 30th bit is 1 if key was already down
+            if ( !( lParam & ( 0b1 << 30 ) ) || kbd.AutorepeatIsEnabled() )
+            {
+                kbd.OnKeyPressed( static_cast<unsigned char>( wParam ) );
+            }
+            break;
+        }
+        // Key released event
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        {
+            kbd.OnKeyReleased( static_cast<unsigned char>( wParam ) );
+            break;
+        }
+        // Char event
+        case WM_CHAR:
+        {
+            kbd.OnChar( static_cast<unsigned char>( wParam ) );
+            break;
         }
     }
     return DefWindowProc( hWnd, uMsg, wParam, lParam );

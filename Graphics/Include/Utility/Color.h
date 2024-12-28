@@ -18,7 +18,9 @@ public:
     //////////////////////////////////////////////////////////////////
     // @brief Constructs the color object with rgb values
     //
-    // @param r, g, b: single byte red, green, and blue channels
+    // @param r: red channel [0-255]
+    // @param g: green channel [0-255]
+    // @param b: blue channel [0-255]
     Color( u8 r, u8 g, u8 b ) : hex( ( r << 16 ) | ( g << 8 ) | b ) {}
 
 public:

@@ -16,10 +16,12 @@ public:
     // @param hWindow: a Windows window handle
     Graphics( const HWND& hWindow );
 
+
     //////////////////////////////////////////////////////////////////
     // @brief Draws a rectangle
     //
-    // @param corner1, corner2: corners of the rectangle
+    // @param corner1: first corner of the rectangle
+    // @param corner2: second corner of the rectangle
     // @param color: constant color of the rectangle
     void DrawRectangle(
         const Vec2<int>& corner1,
@@ -29,7 +31,9 @@ public:
     //////////////////////////////////////////////////////////////////
     // @brief Draws a triangle
     //
-    // @param v1, v2, v3: vertices of the triangle
+    // @param v1: first vertex of the triangle
+    // @param v2: second vertex of the triangle
+    // @param v3: third vertex of the triangle
     // @param color: constant color of the trangle
     void DrawTriangle(
         const Vec2<int>& v1,
@@ -40,7 +44,8 @@ public:
     //////////////////////////////////////////////////////////////////
     // @brief Draws a line between two points
     //
-    // @param pos1, pos2: points to draw the line between
+    // @param pos1: starting point of line
+    // @param pos2: end point of line
     // @param color: constant color of the line
     void DrawLine(
         const Vec2<int>& pos1,
@@ -56,6 +61,7 @@ public:
     void ChangePixel(
         const Vec2<int>& pos,
         const Color&     color );
+
 
     //////////////////////////////////////////////////////////////////
     // @brief Displays the current frame to the screen and resets

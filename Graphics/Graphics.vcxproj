@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -145,6 +145,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Windows\Keyboard.cpp" />
     <ClCompile Include="src\Graphics\Display.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Utility\GraphicsException.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="include\Utility\Color.h" />
     <ClInclude Include="include\Utility\GraphicsException.h" />
     <ClInclude Include="include\Utility\Vec2.h" />
+    <ClInclude Include="include\Windows\Keyboard.h" />
     <ClInclude Include="include\Windows\Resource.h" />
     <ClInclude Include="include\Windows\Win.h" />
     <ClInclude Include="include\Windows\Window.h" />

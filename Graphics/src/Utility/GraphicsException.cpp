@@ -1,12 +1,12 @@
 #include "Utility/GraphicsException.h"
 #include <sstream>
 
-// =============================
-// GraphicsException definitions
-// =============================
+/* ======================================================================================================= */
+/*                           [PUBLIC] GraphicsException                                                    */
+/* ======================================================================================================= */
 
 //////////////////////////////////////////////////////////////////
-// Constructs a generic GraphicsException
+// [PUBLIC] Constructs a generic GraphicsException
 GraphicsException::GraphicsException( 
     int         line, 
     const char* file ) noexcept
@@ -16,7 +16,7 @@ GraphicsException::GraphicsException(
 {}
 
 //////////////////////////////////////////////////////////////////
-// Human readable error string recovered from exception
+// [PUBLIC] Human readable error string recovered from exception
 const char* GraphicsException::what() const noexcept
 {
     // Format the error string and store in buffer
@@ -30,20 +30,20 @@ const char* GraphicsException::what() const noexcept
 }
 
 //////////////////////////////////////////////////////////////////
-// Returns the type of the exception, must be implemented
-//      by child exception
+// [PUBLIC] Returns the type of the exception, must be implemented
+//          by child exception
 const char* GraphicsException::GetType() const noexcept { return "Generic Graphics Exception"; }
 
 //////////////////////////////////////////////////////////////////
-// Returns the line that the exception was thrown on
+// [PUBLIC] Returns the line that the exception was thrown on
 int GraphicsException::GetLine() const noexcept { return line; }
 
 //////////////////////////////////////////////////////////////////
-// Returns the file that the exception was thrown from
+// [PUBLIC]  Returns the file that the exception was thrown from
 const std::string& GraphicsException::GetFile() const noexcept { return file; }
 
 //////////////////////////////////////////////////////////////////
-// Returns a formatted string of the line and file origin
+// [PUBLIC] Returns a formatted string of the line and file origin
 std::string GraphicsException::GetOriginString() const noexcept
 {
     std::ostringstream oss;

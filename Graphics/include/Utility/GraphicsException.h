@@ -10,12 +10,14 @@ public:
     //////////////////////////////////////////////////////////////////
     // @brief Constructs a generic GraphicsException
     //
-    // @param line, file: where the exception is thrown from
+    // @param line: line where the exception is thrown from
+    // @param file: file where the exception is thrown from
     GraphicsException( int line, const char* file ) noexcept;
 
     //////////////////////////////////////////////////////////////////
     // @brief Human readable error string recovered from exception
     const char* what() const noexcept override;
+
 
     //////////////////////////////////////////////////////////////////
     // @brief Returns the type of the exception, must be implemented
