@@ -3,13 +3,14 @@
 #include "Utility/Vec2.h"
 #include "Utility/Color.h"
 
-using u32 = uint32_t;
-
 //////////////////////////////////////////////////////////////////
 // @brief Graphics pipeline for a given window
 class Graphics
 {
 public:
+    // TEMPORARY FIX UNTIL GRAPHICS REFACTOR
+    Graphics() = default;
+
     //////////////////////////////////////////////////////////////////
     // @brief Constructs the graphics object and stores necessary data
     // 

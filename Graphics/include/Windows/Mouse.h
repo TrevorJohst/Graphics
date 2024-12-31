@@ -150,7 +150,7 @@ private:
     // @brief Accumulates wheel delta and adds events when needed
     //
     // @param stepDelta: a scaled version of the delta where 1 is a
-    //      single step, i.e. stepDelta = delta / DELTA_INCREMENT
+    //      single step, i.e. stepDelta = delta / STEP_INCREMENT
     void OnWheelDelta( float stepDelta ) noexcept;
 
     //////////////////////////////////////////////////////////////////

@@ -39,9 +39,6 @@
     <ClCompile Include="src\Windows\Window.cpp">
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\Display.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="src\Graphics\Graphics.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
@@ -54,6 +51,9 @@
     <ClCompile Include="src\Windows\Mouse.cpp">
       <Filter>Source Files\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\User\App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Windows\Window.h">
@@ -64,9 +64,6 @@
     </ClInclude>
     <ClInclude Include="include\Windows\Resource.h">
       <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\Display.h">
-      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\Graphics.h">
       <Filter>Header Files\Graphics</Filter>
@@ -85,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="include\Windows\Mouse.h">
       <Filter>Header Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\User\App.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -169,6 +169,10 @@ Window::Window(
     if ( hWnd == nullptr )
         throw WND_LAST_EXCEPT();
 
+    // Create a graphics object on this window
+    // TEMPORARY FIX UNTIL GRAPHICS REFACTOR
+    gfx = Graphics( hWnd );
+
     // Show the window
     ShowWindow( hWnd, SW_SHOWDEFAULT );
 }
@@ -176,6 +180,27 @@ Window::Window(
 //////////////////////////////////////////////////////////////////
 // [PUBLIC] Destroys the window freeing the instance
 Window::~Window() { DestroyWindow( hWnd ); }
+
+//////////////////////////////////////////////////////////////////
+// [PUBLIC] Process messages until none remain, returns
+//      termination int only if window is closed
+std::optional<int> Window::ProcessMessages()
+{
+    // Process all messages
+    MSG msg;
+    while ( PeekMessage( &msg, nullptr, 0, 0, PM_REMOVE ) )
+    {
+        // Exit with window termination return value if quit
+        if ( msg.message == WM_QUIT )
+            return static_cast<int>( msg.wParam );
+
+        TranslateMessage( &msg );
+        DispatchMessage( &msg );
+    }
+
+    // No quit message was sent, return nothing
+    return std::nullopt;
+}
 
 //////////////////////////////////////////////////////////////////
 // [PUBLIC] Returns the window's handle

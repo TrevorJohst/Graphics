@@ -3,6 +3,7 @@
 #include "Windows/Resource.h"
 #include "Windows/Keyboard.h"
 #include "Windows/Mouse.h"
+#include "Graphics/Graphics.h"
 #include "Utility/GraphicsException.h"
 
 //////////////////////////////////////////////////////////////////
@@ -122,6 +123,12 @@ public:
 
 
     //////////////////////////////////////////////////////////////////
+    // @brief Process messages until none remain, returns termination
+    //      int only if window is closed
+    static std::optional<int> ProcessMessages();
+
+
+    //////////////////////////////////////////////////////////////////
     // @brief Returns the window's handle
     HWND GetHandle() noexcept;
 
@@ -173,6 +180,7 @@ private:
 public:
     Keyboard kbd;
     Mouse mouse;
+    Graphics gfx;
 
 private:
     int width;

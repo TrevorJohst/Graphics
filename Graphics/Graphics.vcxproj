@@ -145,8 +145,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\User\App.cpp" />
     <ClCompile Include="src\Windows\Keyboard.cpp" />
-    <ClCompile Include="src\Graphics\Display.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Utility\GraphicsException.cpp" />
     <ClCompile Include="src\Windows\Main.cpp" />
@@ -154,11 +154,11 @@
     <ClCompile Include="src\Windows\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Graphics\Display.h" />
     <ClInclude Include="include\Graphics\Graphics.h" />
     <ClInclude Include="include\Utility\Color.h" />
     <ClInclude Include="include\Utility\GraphicsException.h" />
     <ClInclude Include="include\Utility\Vec2.h" />
+    <ClInclude Include="include\User\App.h" />
     <ClInclude Include="include\Windows\Keyboard.h" />
     <ClInclude Include="include\Windows\Mouse.h" />
     <ClInclude Include="include\Windows\Resource.h" />

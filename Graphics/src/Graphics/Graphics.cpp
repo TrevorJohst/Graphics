@@ -25,7 +25,7 @@ Graphics::Graphics( const HWND& hWindow )
     memory = VirtualAlloc(
         NULL,													// Location of desired memory (null means we dont care)
         static_cast<size_t>(clientWidth * clientHeight) 
-            * sizeof(u32),		                                // Amount of memory we want in bytes (num pixels * num bytes per pixel)
+            * sizeof( uint32_t ),		                        // Amount of memory we want in bytes (num pixels * num bytes per pixel)
         MEM_RESERVE | MEM_COMMIT,								// Type of memory allocation (we want to reserve it and commit to it)
         PAGE_READWRITE											// Memory protection (we will be writing and reading the memory)
     );
@@ -339,7 +339,7 @@ void Graphics::ChangePixel(
     assert( pos.y >= 0 && pos.y < clientHeight );
 
     // Set our pixel variable to the address of the start of our memory block
-    u32* pixel = (u32*)memory;
+    uint32_t* pixel = (uint32_t*)memory;
 
     // Move to the desired coordinate
     pixel += pos.y * clientWidth + pos.x;
@@ -378,7 +378,7 @@ void Graphics::Update()
 void Graphics::ClearScreen( const Color& color )
 {
     // Set our pixel variable to the address of the start of our memory block
-    u32* pixel = (u32*)memory;
+    uint32_t* pixel = (uint32_t*)memory;
 
     // Loop through every pixel in the memory
     for ( size_t i = 0; i < static_cast<size_t>( clientWidth * clientHeight ); ++i )
