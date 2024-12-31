@@ -150,6 +150,7 @@
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Utility\GraphicsException.cpp" />
     <ClCompile Include="src\Windows\Main.cpp" />
+    <ClCompile Include="src\Windows\Mouse.cpp" />
     <ClCompile Include="src\Windows\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="include\Utility\GraphicsException.h" />
     <ClInclude Include="include\Utility\Vec2.h" />
     <ClInclude Include="include\Windows\Keyboard.h" />
+    <ClInclude Include="include\Windows\Mouse.h" />
     <ClInclude Include="include\Windows\Resource.h" />
     <ClInclude Include="include\Windows\Win.h" />
     <ClInclude Include="include\Windows\Window.h" />

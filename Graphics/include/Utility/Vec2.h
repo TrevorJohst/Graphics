@@ -7,6 +7,13 @@ struct Vec2
 {
 public:
     //////////////////////////////////////////////////////////////////
+    // @brief Constructs a 2D vector 
+    //
+    // @param x: x coordinate of the vector
+    // @param y: y coordinate of the vector
+    Vec2( T x, T y ) : x( x ), y( y ) {}
+
+    //////////////////////////////////////////////////////////////////
     // @brief Swaps the values of two vectors
     //
     // @param rhs: vector to swap with

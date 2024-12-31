@@ -10,7 +10,7 @@ Keyboard::Event::Event() noexcept : type( Type::INVALID ), code( 0u ) {}
 
 //////////////////////////////////////////////////////////////////
 // [PUBLIC] Constructs a key event of specified type and keycode
-Keyboard::Event::Event( Type type, unsigned char code ) noexcept : type( type ), code( code ) {}
+Keyboard::Event::Event( Type type, unsigned char keycode ) noexcept : type( type ), code( keycode ) {}
 
 //////////////////////////////////////////////////////////////////
 // [PUBLIC] Returns true if the event represents a press
@@ -110,7 +110,7 @@ void Keyboard::OnKeyPressed( unsigned char keycode ) noexcept
 {
     // Set the key's state to true, push it into the queue, and trim back to max size
     keyStates[keycode] = true;
-    keyBuffer.push( Event( Event::Type::PRESS, keycode ) );
+    keyBuffer.emplace( Event::Type::PRESS, keycode );
     TrimBuffer( keyBuffer );
 }
 
@@ -120,7 +120,7 @@ void Keyboard::OnKeyReleased( unsigned char keycode ) noexcept
 {
     // Set the key's state to false, push it into the queue, and trim back to max size
     keyStates[keycode] = false;
-    keyBuffer.push( Event( Event::Type::RELEASE, keycode ) );
+    keyBuffer.emplace( Event::Type::RELEASE, keycode );
     TrimBuffer( keyBuffer );
 }
 

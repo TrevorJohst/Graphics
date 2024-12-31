@@ -2,6 +2,7 @@
 #include "Windows/Win.h"
 #include "Windows/Resource.h"
 #include "Windows/Keyboard.h"
+#include "Windows/Mouse.h"
 #include "Utility/GraphicsException.h"
 
 //////////////////////////////////////////////////////////////////
@@ -108,26 +109,34 @@ public:
         bool           fullscreen = false );
 
     //////////////////////////////////////////////////////////////////
-    // @brief Destroys the window freeing the instance
-    ~Window();
-
-
-    //////////////////////////////////////////////////////////////////
-    // @brief Access the window's handle
-    //
-    // @return the handle to the window
-    HWND GetHandle() noexcept;
-
-
-    //////////////////////////////////////////////////////////////////
     // @brief Copy constructor is deleted to enforce singleton
     Window( const Window& ) = delete;
+
+    //////////////////////////////////////////////////////////////////
+    // @brief Destroys the window freeing the instance
+    ~Window();
 
     //////////////////////////////////////////////////////////////////
     // @brief Assignment operator is deleted to enforce singleton
     Window& operator=( const Window& ) = delete;
 
+
+    //////////////////////////////////////////////////////////////////
+    // @brief Returns the window's handle
+    HWND GetHandle() noexcept;
+
 private:
+    //////////////////////////////////////////////////////////////////
+    // @brief Captures the mouse if in the client region
+    //
+    // @param pos: the current position of the mouse
+    void CaptureMouse( const POINTS& pos ) noexcept;
+
+    //////////////////////////////////////////////////////////////////
+    // @brief Releases the mouse if no buttons are currently pressed
+    void ReleaseMouse() noexcept;
+
+
     //////////////////////////////////////////////////////////////////
     // @brief Sets up message handling at time of window creation
     //
@@ -163,12 +172,14 @@ private:
 
 public:
     Keyboard kbd;
+    Mouse mouse;
 
 private:
     int width;
     int height;
     HWND hWnd;
     bool fullscreen;
+    bool captured = false;
 };
 
 // Error macros

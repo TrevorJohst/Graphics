@@ -28,7 +28,12 @@ public:
 
         //////////////////////////////////////////////////////////////////
         // @brief Constructs a key event of specified type and keycode
-        Event( Type type, unsigned char code ) noexcept;
+        //
+        // @param type: keyboard event type
+        // @param keycode: Windows keycode of the event 
+        Event( 
+            Type          type, 
+            unsigned char keycode ) noexcept;
 
 
         //////////////////////////////////////////////////////////////////
@@ -122,14 +127,20 @@ public:
 private:
     //////////////////////////////////////////////////////////////////
     // @brief Adds a key pressed event to the queue
+    //
+    // @param keycode: Windows keycode pressed
     void OnKeyPressed( unsigned char keycode ) noexcept;
 
     //////////////////////////////////////////////////////////////////
     // @brief Adds a key released event to the queue
+    //
+    // @param keycode: Windows keycode released
     void OnKeyReleased( unsigned char keycode ) noexcept;
 
     //////////////////////////////////////////////////////////////////
     // @brief Adds a char to the queue
+    //
+    // @param character: character registered as pressed
     void OnChar( char character ) noexcept;
 
 
@@ -139,6 +150,8 @@ private:
 
     //////////////////////////////////////////////////////////////////
     // @brief Pops from the queue to get below maximum size
+    //
+    // @param buffer: queue to trim down to max size
     template<typename T>
     static void TrimBuffer( std::queue<T>& buffer ) noexcept;
 

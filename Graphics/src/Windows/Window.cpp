@@ -126,13 +126,15 @@ Window::WindowClass::~WindowClass() { UnregisterClass( wndClassName, GetInstance
 
 //////////////////////////////////////////////////////////////////
 // [PUBLIC] Creates a single window with desired parameters
-Window::Window( 
-    int            clientWidth, 
+Window::Window(
+    int            clientWidth,
     int            clientHeight,
     const wchar_t* name,
     bool           fullscreen )
     :
-    fullscreen(fullscreen)
+    width( clientWidth ),
+    height( clientHeight ),
+    fullscreen( fullscreen )
 {
     assert( clientWidth >= 0 && clientHeight >= 0 );
 
@@ -150,17 +152,13 @@ Window::Window(
     if ( AdjustWindowRect( &wr, STYLE, FALSE ) == FALSE )
         throw WND_LAST_EXCEPT();
 
-    // Extract full width and height
-    width = wr.right;
-    height = wr.bottom;
-
     // Create the window
     hWnd = CreateWindow(
         WindowClass::GetName(),         // Window class name
         name,				            // Window text
         STYLE,                          // Window style
         CW_USEDEFAULT, CW_USEDEFAULT,   // Position
-        width, height,  		        // Size
+        wr.right, wr.bottom, 	        // Size
         NULL,					        // Parent window
         NULL,					        // Menu
         WindowClass::GetInstance(),	    // Instance handle
@@ -180,8 +178,30 @@ Window::Window(
 Window::~Window() { DestroyWindow( hWnd ); }
 
 //////////////////////////////////////////////////////////////////
-// [PUBLIC] Access the window's handle
+// [PUBLIC] Returns the window's handle
 HWND Window::GetHandle() noexcept { return hWnd; }
+
+//////////////////////////////////////////////////////////////////
+// [PRIVATE] Captures the mouse if in the client region
+inline void Window::CaptureMouse( const POINTS& pos ) noexcept
+{
+    if ( pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height )
+    {
+        SetCapture( hWnd );
+        captured = true;
+    }
+}
+
+//////////////////////////////////////////////////////////////////
+// [PRIVATE] Releases the mouse if no buttons are currently pressed
+inline void Window::ReleaseMouse() noexcept
+{
+    if ( captured && !mouse.AnyPressed() )
+    {
+        ReleaseCapture();
+        captured = false;
+    }
+}
 
 //////////////////////////////////////////////////////////////////
 // [PRIVATE] Sets up message handling at time of window creation
@@ -237,6 +257,7 @@ LRESULT Window::HandleMsg(
     // Switch on message type
     switch ( uMsg )
     {
+        //// STANDARD EVENTS
         // Prevent manual movement and resizing of the window if fullscreen
         case WM_WINDOWPOSCHANGING:
         {
@@ -254,6 +275,7 @@ LRESULT Window::HandleMsg(
             PostQuitMessage( 0 );
             return 0;
         }
+        //// KEYBOARD EVENTS
         // Clear key states when window loses focus
         case WM_KILLFOCUS:
         {
@@ -282,6 +304,73 @@ LRESULT Window::HandleMsg(
         case WM_CHAR:
         {
             kbd.OnChar( static_cast<unsigned char>( wParam ) );
+            break;
+        }
+        //// MOUSE EVENTS
+        // Clear mouse states on unplanned release (ALT + TAB)
+        case WM_CAPTURECHANGED:
+        {
+            if ( captured )
+            {
+                mouse.ClearState();
+                captured = false;
+            }
+            break;
+        }
+        // Mouse move event
+        case WM_MOUSEMOVE:
+        {
+            const POINTS pos = MAKEPOINTS( lParam );
+            mouse.OnMouseMove( pos.x, pos.y );
+            break;
+        }
+        // LMB pressed event
+        case WM_LBUTTONDOWN:
+        {
+            mouse.OnLeftPress();
+            CaptureMouse( MAKEPOINTS( lParam ) );
+            break;
+        }
+        // LMB released event
+        case WM_LBUTTONUP:
+        {
+            mouse.OnLeftRelease();
+            ReleaseMouse();
+            break;
+        }
+        // RMB pressed event
+        case WM_RBUTTONDOWN:
+        {
+            mouse.OnRightPress();
+            CaptureMouse( MAKEPOINTS( lParam ) );
+            break;
+        }
+        // RMB released event
+        case WM_RBUTTONUP:
+        {
+            mouse.OnRightRelease();
+            ReleaseMouse();
+            break;
+        }
+        // MMB pressed event
+        case WM_MBUTTONDOWN:
+        {
+            mouse.OnMiddlePress();
+            CaptureMouse( MAKEPOINTS( lParam ) );
+            break;
+        }
+        // MMB released event
+        case WM_MBUTTONUP:
+        {
+            mouse.OnMiddleRelease();
+            ReleaseMouse();
+            break;
+        }
+        // Mouse scroll event
+        case WM_MOUSEWHEEL:
+        {
+            const float scaledDelta = static_cast<float>( GET_WHEEL_DELTA_WPARAM( wParam ) ) / WHEEL_DELTA;
+            mouse.OnWheelDelta( scaledDelta );
             break;
         }
     }

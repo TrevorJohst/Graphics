@@ -127,7 +127,7 @@ void Graphics::DrawTriangle(
         middleLeft.Swap( middleRight );
 
 
-    //// Draw flat bottom triangle
+    //// DRAW FLAT BOTTOM TRIANGLE
     int lx1 = middleLeft.x, ly1 = middleLeft.y;
     int lx2 = top.x, ly2 = top.y;
 
@@ -202,7 +202,7 @@ void Graphics::DrawTriangle(
     }
 
 
-    //// Draw flat top triangle
+    //// DRAW FLAT TOP TRIANGLE
     lx1 = middleLeft.x, ly1 = middleLeft.y;
     lx2 = bottom.x, ly2 = bottom.y;
 
